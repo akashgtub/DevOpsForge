@@ -1,9 +1,14 @@
 pipeline {
     agent any
 
+    options {
+        skipDefaultCheckout(true)
+    }
+
     stages {
         stage('Checkout') {
             steps {
+                deleteDir()
                 checkout scm
                 echo 'GitHub checkout successful!'
             }
@@ -30,6 +35,7 @@ pipeline {
                 }
             }
         }
+
         stage('Build Docker Image') {
             steps {
                 sh '''
