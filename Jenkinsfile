@@ -1,50 +1,43 @@
-
 pipeline {
     agent any
 
     stages {
-
-        // Stage 1: Checkout source code from GitHub
         stage('Checkout') {
             steps {
                 checkout scm
+                echo 'GitHub checkout successful!'
             }
         }
 
-        // Stage 2: Verify project source code
-        stage('Verify Source Code') {
+        stage('Python Environment') {
             steps {
-                sh '''
-                    echo "Checking project directory..."
-                    pwd
-
-                    echo "Listing project files..."
-                    ls -la
-
-                    echo "Checking backend directory..."
-                    ls -la backend
-                '''
+                dir('backend') {
+                    sh '''
+                        python3 --version
+                        python3 -m venv .venv
+                        ./.venv/bin/python -m pip install -r requirements.txt
+                    '''
+                }
             }
         }
 
-        // Stage 3: Verify Python installation
-        stage('Python Environment Check') {
+        stage('Run Backend Tests') {
             steps {
-                sh '''
-                    echo "Checking Python installation..."
-
-                    python3 --version
-
-                    echo "Checking pip installation..."
-                    python3 -m pip --version
-
-                    echo "Testing Python execution..."
-                    python3 -c "print('Python execution successful!')"
-
-                    echo "Python environment verification completed!"
-                '''
+                dir('backend') {
+                    sh '''
+                        ./.venv/bin/python -m pytest -v
+                    '''
+                }
             }
         }
+    }
 
+    post {
+        success {
+            echo 'DevOpsForge CI pipeline completed successfully!'
+        }
+        failure {
+            echo 'CI pipeline failed. Check the test logs.'
+        }
     }
 }
