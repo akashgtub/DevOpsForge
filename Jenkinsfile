@@ -30,6 +30,14 @@ pipeline {
                 }
             }
         }
+        stage('Build Docker Image') {
+            steps {
+                sh '''
+                    docker version
+                    docker build -t devopsforge-api:${BUILD_NUMBER} -f backend/Dockerfile backend
+                '''
+            }
+        }
     }
 
     post {
